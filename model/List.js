@@ -10,6 +10,6 @@ const listSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'Card'
     }]
-}, { timestamps: true });
+});
 
 module.exports = model('List', listSchema);
