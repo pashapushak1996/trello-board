@@ -1,9 +1,8 @@
 const express = require('express');
-const mongoose = require('mongoose');
 
 require('dotenv').config();
 
-const { PORT, DB_HOST } = require('./configs/variables');
+const { configs, dbConnect } = require('./configs');
 const { apiRouter } = require('./routes');
 const { errorCodes } = require('./errors');
 
@@ -16,20 +15,8 @@ app.use('/', apiRouter);
 app.use('*', _notFoundError);
 app.use(_mainErrorHandler);
 
-app.listen(PORT, async () => {
-    try {
-        mongoose.set('strictQuery', true);
-        const connection = await mongoose.connect(DB_HOST);
-
-        if (connection) {
-            console.log('DB connected');
-        }
-    } catch (err) {
-        if (err) console.log(err);
-
-        process.exit(1);
-    }
-    console.log(`PORT: ${ PORT }`);
+app.listen(configs.PORT, () => {
+    dbConnect();
 });
 
 function _notFoundError(err, req, res, next) {
