@@ -12,8 +12,6 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// http://localhost:5173
-
 app.use(cors({ origin: _configureCors }));
 
 app.use('/', apiRouter);
