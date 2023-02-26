@@ -1,15 +1,20 @@
 const express = require('express');
+const cors = require('cors');
 
 require('dotenv').config();
 
-const { configs, dbConnect } = require('./configs');
+const { configs, dbConnect, statusCodesEnum } = require('./configs');
 const { apiRouter } = require('./routes');
-const { errorCodes } = require('./errors');
+const { errorCodes, ErrorHandler } = require('./errors');
 
 const app = express();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// http://localhost:5173
+
+app.use(cors({ origin: _configureCors }));
 
 app.use('/', apiRouter);
 app.use('*', _notFoundError);
@@ -33,4 +38,18 @@ function _mainErrorHandler(err, req, res, _) {
         .json({
             message: err.message || 'Unknown error'
         });
+}
+
+function _configureCors(origin, cb) {
+    const whiteList = configs.ALLOWED_ORIGINS.split(';');
+
+    if (!origin && process.env.NODE_DEV === 'dev') {
+        return cb(null, true);
+    }
+
+    if (!whiteList.includes(origin)) {
+        return cb(new ErrorHandler(statusCodesEnum.FORBIDDEN, 'Cors not allowed'), false);
+    }
+
+    return cb(null, true);
 }
