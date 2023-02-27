@@ -1,4 +1,4 @@
-const { List } = require('../model');
+const { List, Card } = require('../model');
 const { statusCodesEnum } = require('../configs');
 
 module.exports = {
@@ -30,11 +30,17 @@ module.exports = {
         try {
             const { listId } = req.params;
 
+            const foundList = await List.findById(listId);
+
+            // It deletes all cards which contains list
+            const listCardsPromises = foundList.cards.map((cardId) => Card.findByIdAndDelete(cardId));
+
+            await Promise.all(listCardsPromises);
+
             await List.deleteOne({ _id: listId });
 
             res
-                .status(statusCodesEnum.NO_CONTENT)
-                .json(`${ listId } is deleted `);
+                .status(statusCodesEnum.NO_CONTENT);
         } catch (e) {
             next(e);
         }
